@@ -1,0 +1,37 @@
+services:
+  remix-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.remix
+    ports:
+      - "3000:3000"  # Optional: expose Remix directly for testing
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - sqldb
+    volumes:
+      - ./sqldb/data:/app/data  # Mount the database volume
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    # Optional: Uncomment and adjust the following line to enable file serving
+    # volumes:
+    #   - /home/pi/resources:/resources
+    depends_on:
+      - remix-app
+
+  sqldb:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqldb
+    volumes:
+      - ./sqldb/data:/data
+    environment:
+      - DB_PATH=/data/app.db
+    command: ["sh", "-c", "echo 'Checking database file...' && if [ ! -f /data/app.db ]; then echo 'Initializing database...' && sqlite3 /data/app.db < /sqldb/scripts/init.sql; else echo 'Database file exists, skipping initialization'; fi && tail -f /dev/null"]
+volumes:
+  data:
