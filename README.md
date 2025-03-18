@@ -1,4 +1,4 @@
-# Multi-Container Docker Setup: Nginx + Remix + SQLite
+# Docker Template: Nginx + Remix + SQLite
 
 ## Overview
 This is a multi-container Docker setup featuring:
